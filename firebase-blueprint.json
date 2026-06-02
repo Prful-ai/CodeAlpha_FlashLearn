@@ -1,0 +1,87 @@
+{
+  "entities": {
+    "UserStats": {
+      "title": "UserStats",
+      "description": "Spaced repetition study statistics for a user",
+      "type": "object",
+      "properties": {
+        "cardsMastered": { "type": "integer" },
+        "currentStreak": { "type": "integer" },
+        "userName": { "type": "string" },
+        "masteredCount": { "type": "integer" },
+        "streakDays": { "type": "integer" },
+        "completionRatio": { "type": "number" },
+        "weeklyLog": {
+          "type": "object",
+          "properties": {
+            "mon": { "type": "integer" },
+            "tue": { "type": "integer" },
+            "wed": { "type": "integer" },
+            "thu": { "type": "integer" },
+            "fri": { "type": "integer" },
+            "sat": { "type": "integer" },
+            "sun": { "type": "integer" }
+          },
+          "required": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+        },
+        "decks": {
+          "type": "array",
+          "description": "Optional empty list representing starting decks",
+          "items": { "type": "object" }
+        },
+        "cards": {
+          "type": "array",
+          "description": "Optional empty list representing starting flashcards",
+          "items": { "type": "object" }
+        }
+      },
+      "required": ["cardsMastered", "currentStreak", "userName", "masteredCount", "streakDays", "completionRatio", "weeklyLog"]
+    },
+    "Deck": {
+      "title": "Deck",
+      "description": "Represents a Swiss Modernist flashcard study deck",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "desc": { "type": "string" },
+        "tag": { "type": "string" },
+        "icon": { "type": "string" },
+        "category": { "type": "string" },
+        "cardsCount": { "type": "integer" },
+        "newCount": { "type": "integer" },
+        "reviewCount": { "type": "integer" },
+        "learnedCount": { "type": "integer" }
+      },
+      "required": ["id", "name", "desc", "tag", "icon", "category", "cardsCount", "newCount", "reviewCount", "learnedCount"]
+    },
+    "Card": {
+      "title": "Card",
+      "description": "Represents an individual flashcard in a study deck",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "deckId": { "type": "string" },
+        "question": { "type": "string" },
+        "answer": { "type": "string" },
+        "status": { "type": "string", "enum": ["new", "review", "learned"] },
+        "lastStudiedText": { "type": "string" }
+      },
+      "required": ["id", "deckId", "question", "answer", "status"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "UserStats",
+      "description": "Personal stats and info for each user profile"
+    },
+    "users/{userId}/decks/{deckId}": {
+      "schema": "Deck",
+      "description": "User flashcard decks collection"
+    },
+    "users/{userId}/decks/{deckId}/cards/{cardId}": {
+      "schema": "Card",
+      "description": "Individual flashcards nested inside their respective decks"
+    }
+  }
+}

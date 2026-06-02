@@ -1,0 +1,6 @@
+{
+  "name": "FlashLearn",
+  "description": "An elegant, distraction-free flashcard learning application focused on cognitive ease, progress tracking, and beautiful spaced-repetition study reviews.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

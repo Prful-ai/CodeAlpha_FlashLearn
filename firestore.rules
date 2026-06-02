@@ -1,0 +1,105 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. Catch-all Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Standard high-level authentication checkers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // User statistics profile validation
+    function isValidUserStats(data) {
+      return data.keys().hasAll(['cardsMastered', 'currentStreak', 'userName', 'masteredCount', 'streakDays', 'completionRatio', 'weeklyLog'])
+        && data.keys().size() >= 7 && data.keys().size() <= 9
+        && data.cardsMastered is int
+        && data.currentStreak is int
+        && data.userName is string
+        && data.userName.size() <= 100
+        && data.masteredCount is int
+        && data.streakDays is int
+        && data.completionRatio is number
+        && data.weeklyLog is map
+        && data.weeklyLog.mon is int
+        && data.weeklyLog.tue is int
+        && data.weeklyLog.wed is int
+        && data.weeklyLog.thu is int
+        && data.weeklyLog.fri is int
+        && data.weeklyLog.sat is int
+        && data.weeklyLog.sun is int
+        && (!('decks' in data) || data.decks is list)
+        && (!('cards' in data) || data.cards is list);
+    }
+
+    // Study deck validation
+    function isValidDeck(data) {
+      return data.keys().hasAll(['id', 'name', 'desc', 'tag', 'icon', 'category', 'cardsCount', 'newCount', 'reviewCount', 'learnedCount'])
+        && data.keys().size() == 10
+        && data.id is string
+        && data.id.size() <= 128
+        && data.name is string
+        && data.name.size() <= 150
+        && data.desc is string
+        && data.desc.size() <= 500
+        && data.tag is string
+        && data.tag.size() <= 100
+        && data.icon is string
+        && data.icon.size() <= 100
+        && data.category is string
+        && data.category.size() <= 100
+        && data.cardsCount is int
+        && data.newCount is int
+        && data.reviewCount is int
+        && data.learnedCount is int;
+    }
+
+    // Flashcard validation
+    function isValidCard(data) {
+      return data.keys().hasAll(['id', 'deckId', 'question', 'answer', 'status', 'lastStudiedText'])
+        && data.keys().size() == 6
+        && data.id is string
+        && data.id.size() <= 128
+        && data.deckId is string
+        && data.deckId.size() <= 128
+        && data.question is string
+        && data.question.size() <= 1000
+        && data.answer is string
+        && data.answer.size() <= 2000
+        && data.status is string
+        && (data.status == 'new' || data.status == 'review' || data.status == 'learned')
+        && data.lastStudiedText is string
+        && data.lastStudiedText.size() <= 100;
+    }
+
+    // Target collection paths
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow create, update: if isOwner(userId) && isValidUserStats(request.resource.data);
+      allow delete: if isOwner(userId);
+
+      match /decks/{deckId} {
+        allow get, list: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidId(deckId) && isValidDeck(request.resource.data);
+        allow delete: if isOwner(userId) && isValidId(deckId);
+
+        match /cards/{cardId} {
+          allow get, list: if isOwner(userId);
+          allow create, update: if isOwner(userId) && isValidId(deckId) && isValidId(cardId) && isValidCard(request.resource.data);
+          allow delete: if isOwner(userId) && isValidId(deckId) && isValidId(cardId);
+        }
+      }
+    }
+  }
+}
