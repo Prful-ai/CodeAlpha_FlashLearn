@@ -51,6 +51,9 @@ Built entirely defensive to variable connectivity issues. A local storage layer 
 | **Layout Layer** | Modular Native CSS | Standard structural layouts adhering to Swiss principles |
 
 ## Structural Layout
+## 📁 Structural Layout
+
+```text
 CodeAlpha_FlashLearn/
 ├── .aistudio/                 # AI Studio target tracking meta
 ├── assets/                    # Presentation-layer image and logo resources
@@ -58,7 +61,11 @@ CodeAlpha_FlashLearn/
 │   └── node-domexception/     # Mock structures preventing dependencies drops
 ├── src/                       # Application functional base
 │   ├── components/            # UI components aligning with Swiss Design
+│   │   ├── AuthScreen.tsx     # Fault-tolerant registration & guest routing logic
+│   │   ├── HomeDashboard.tsx  # Localized panels, progress wheels, archive items
+│   │   └── TopAppBar.tsx      # Sync badge headers, language presets dropdown
 │   └── main.tsx               # Entry engine bootstrap
 ├── .env.example               # Structural environment baseline
 ├── firestore.rules            # Security boundaries governing remote instances
 └── vite.config.ts             # Modular system assembly configurations
+```
